@@ -4,6 +4,9 @@ import com.cos.security1.model.User;
 import com.cos.security1.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,7 +59,6 @@ public class IndexController {
     }
 
     @PostMapping("/join")
-    @ResponseBody
     public String join(@ModelAttribute User user){
         /*
           @ModelAttribute는 생략 가능하다.
@@ -73,5 +75,21 @@ public class IndexController {
         userRepository.save(user); // 회원가입 잘됨. 비밀번호: 1234 => 시큐리티로 로그인 할 수 없음. 이유는 패스워드 암호화가 되지 않았기 때문이다.
         return "redirect:/loginForm";
     }
+
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/info")
+    @ResponseBody
+    public String info(){
+        return "개인정보";
+    }
+
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')") // 여러개를 걸고싶을 때 (data함수 전에 호출)
+    @GetMapping("/data")
+    @ResponseBody
+    public String data(){
+        return "데이터정보";
+    }
+
+
 
 }
